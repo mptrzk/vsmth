@@ -58,7 +58,6 @@ function diff(vnew, vold, root, idx) {
   }
 }
 
-
 function Vnode(x) {
   if (Array.isArray(x)) {
     if (x?.[1]?.constructor?.name === 'Object') {
@@ -74,23 +73,21 @@ function Vnode(x) {
   return x;
 }
 
-let vdom = undefined;
-
+let vdom_g;
 function render(expr, root) {
   const vnew = Vnode(expr);
-  diff(vnew, vdom, root, 0);
-  vdom = vnew;
+  diff(vnew, vdom_g, root, 0);
+  vdom_g = vnew;
 }
 
-let model;
-
-function init(update, view, root) {
-  function send(msg) {
-    model = update(model, msg);
-    let res = view(model, send);
-    render(view(model, send), root);
+let model_g;
+function init(model, update, view, root) {
+  model_g = model;
+  function send(action, message) {
+    model_g = update(model_g, action, message);
+    render(view(model_g, send), root);
   }
-  send(['init']);
+  render(view(model_g, send), root);
 }
 
 export {init};

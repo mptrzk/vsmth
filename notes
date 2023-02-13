@@ -430,3 +430,17 @@ elm is bloated
   duplication of closed functionality
     nah? you just do it in the model
 
+initializing with a message is ugly after all
+  returning initial state pro forma just sticks out before the common logic for other messages
+
+or maybe single-arg messages are ugly
+  this too
+
+maybe the whole messages instead of functions thingy deserves a writeup
+
+update(model, subject, message)
+update(model, header, message)
+update(model, action, message) **
+
+I've accidentally written a framework
+

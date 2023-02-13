@@ -1,15 +1,13 @@
 import {init} from './vsmth.js'
 
-function update(model, msg) {
-  const [type, value] = msg;
-  if (type === 'init') {
-    return {
-      count: 0,
-      wasTyped: false,
-    }
-  }
+const model = {
+  count: 0,
+  wasTyped: false,
+}
+
+function update(model, action, message) {
   model.wasTyped = false;
-  switch (type) {
+  switch (action) {
     case 'inc':
       model.count++;
       return model;
@@ -17,11 +15,11 @@ function update(model, msg) {
       model.count--;
       return model;
     case 'set':
-      model.count = value;
+      model.count = message;
       model.wasTyped = true;
       return model;
     default:
-      console.error(`invalid message - ${msg}`);
+      console.error(`invalid action - ${action}`);
   }
 }
 
@@ -31,14 +29,14 @@ function view(model, send) {
   function processInput() {
     const val = parseInt(ref.current.value);
     if (val === undefined || isNaN(val)) return;
-    send(['set', parseInt(val)]);
+    send('set', parseInt(val));
   };
   return (
     ['span',
       ['div',
-        ['input', {type: 'button', value: '-', onclick: () => send(['dec'])}],
+        ['input', {type: 'button', value: '-', onclick: () => send('dec')}],
         ['input', {value: model.count, ref: ref, oninput: processInput}],
-        ['input', {type: 'button', value: '+', onclick: () => send(['inc'])}],
+        ['input', {type: 'button', value: '+', onclick: () => send('inc')}],
       ],
       ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},
         `l${'o'.repeat(100)}ng text`
@@ -58,5 +56,5 @@ function view(model, send) {
   );
 }
 
-init(update, view, document.body);
+init(model, update, view, document.body);
 
