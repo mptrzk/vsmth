@@ -1,0 +1,432 @@
+==================================================
+;GLOSSARY
+
+vnode - a data structure that corresponds to a DOM element (or a component?) 
+component - 
+rendering -
+signal - 
+diffing -
+bubbling -
+
+is glossary even that useful?
+  it probably is if ambiguities occur
+
+==================================================
+;WHY?
+
+So in vanilla JS you can modify DOM
+
+==================================================
+;SIGNAL ARCHITECTURE
+
+force update argument
+
+signal subscribtion as decorator?
+
+vnode as publisher to its children
+  but vnode has be rendered too
+    signals with side effects?
+      isn't that overcomplicated?
+
+explicit signal call
+
+==================================================
+;VIEW-MODEL ARCHITECTURE
+
+seems meh for small state like togglable tree views
+  is there a good way to solve this?
+
+counter instead of queue?
+
+to make it strictly VM, render sets up message queue
+  can't it just dispatch an event?
+    not quite?
+    test how events work
+
+==================================================
+;JS TANGENTS
+
+events
+  events are for doing stuff after thing that's done now finishes
+    rly?
+  bubbling
+    dispatching the same event to the parent?
+
+event vs 
+
+what are workers anyway?
+  what can be done with them better?
+
+==================================================
+;SMALL DOM LIBRARIES
+
+=========================
+;LITTLE-VDOM
+
+
+how it deals with state and update
+  line 35
+    no, it deals with components here
+what's "&&" for in line 11
+
+
+diffing props
+  doesn't preact do it too?
+    I thought it diffed the vnodes
+      based on my experiment with preact
+
+why are children added to props?
+  you can change the component's children and it should update
+  the children are rendered before it
+
+other vdoms seemed to have a commit queue
+
+why it appends to dom the way it does?
+
+do fragments add anything to dom here?
+
+line 20 - does this do anything?
+
+does it work with numbers, etc?
+  yes, it does
+
+doesn't it do way too many dom updates?
+
+are invisible dom attachments cheap?
+  benchmark
+    attach and detach node invisibly 
+
+does replaceChildren delete the replaced?
+
+=========================
+;HUNDRED
+
+no components?
+  in elm components are just functions
+
+
+==================================================
+;BENCHMARK
+
+[describe why the benchmark is what it is]
+  even, odd
+    all node state transitions 
+  400 table cell changes
+  list of elements that expands and shrinks
+
+==================================================
+;DEPRECATED
+
+==================================================
+;UNCATEGORIZED
+
+components returning multiple vnodes
+
+with expanding components there would be more vnodes than dom elements
+why make component-vnodes?
+  state and stuff
+
+attaching stuff lower down eliminates the need to concatenate arrays
+  but isn't concatenating arrays cheaper?
+    is attaching stuff lower down expensive?
+      it should be AFAIK
+      it shouldn't matter if the top-level node is detached AFAIK 
+
+handling fragments within fragments
+
+each component has a vnode
+fragment is a component
+fragment adds no vnodes
+
+
+handling children
+  vnode -> just insert
+  array -> insert a fragment
+  other -> insert text
+
+setting attribs like normal object properties?
+
+[move]
+  </> in htm?
+  code styling - more new lines between things related to a single component at the top level
+
+wild idea
+  reactive vdom viewer
+
+
+
+
+So what am I trying to do anyway?
+I'm trying to find out what takes so long?
+Does anything take long?
+Imagine somebody said "naah, it's all negligible, you can re-render the whole dom after each change and it would be OK"
+Whatever dude, just do it the easiest way until it's slow
+
+what's style recomputation anyway
+how is it different from layout
+
+or write a browser!
+it's just text and boxes
+
+but I wanna have a cool demos 
+
+
+so diffing can occur on 2 levels
+before calling components
+before updating dom
+preact doesn't seem to diff before updating components
+
+I don't like hideous code
+It's different when ugly code is fundamentally easier to write
+
+then there are preact signals
+isn't this whtat the browser should be doing anyway?
+
+web app is portable sandboxed program
+web browser is an OS with a standard library for IO and rendering multimedia
+meh...
+another way - how it emerged
+documents, scripting, other multimedia
+vector graphics
+
+components in reactish frameworks
+  their children and the results
+
+is stuff like absolute position in calculated style?
+I was doing those benchmarks because I wanted to know what's actually slow
+
+what if the two levels of diffing are combined?
+  a fustercluck?
+  plenty o' trees
+
+why have components when you have only 2nd level diffing?
+  for fragments?
+    why not just use lists?
+
+why am I trying to write a vdom?
+because I didn't know what I was doing 
+...
+I wanna know If I'm doing an actual workaround or just LARPng
+
+I do stuff based on how I've seen it done
+I start to repeat stuff a lot
+I ask myself is it really necessary?
+I start coming up with workarounds that achieve the same functionality
+but they look ugly
+
+
+so you want a thing that manages a part of dom to update it
+but you might want to update only a small bit
+
+recursive flattening
+
+the weird problem that would be solved by lisp's quasiquote with spread
+  that's for components and stuff, leave it for now
+
+where do old vnodes go?
+
+so components can work by separating children and results
+  the vnode tree is larger than the dom tree
+  the "attachment node" can be passed down through multiple components
+
+
+I don't know if the lispy editor thingy needs the speed from diffing tbh
+
+
+let's try the elmish way first
+what gets diffed corresponds to a proper DOM tree
+  model immutability doesn't seem to be required
+    why would it be
+      diffing props
+    but only atomic props are assigned to the vnodes when there are no components
+
+queueeless way:
+  diffing and updating in one call
+  relies on the bottom-up attachment being faster
+    rly?
+    top-down attachment is more convenient
+      why?
+      but
+        ddoesn't it require creating new elements to avoid spurious rendering in cases where the bottom up way would avoid it?
+    attaching to the parent within a call doesn't mean top down, if the children stuff is done before it
+      but is passing the parent a good idea anyway?
+  if elements differ:
+    diff the children
+  stuff gets attached only if some element only differs by children
+  
+
+when do elements differ
+  different type and props
+  what about keys and stuff?
+  that's when elements get moved or something
+  or an element appears between others
+    should stuff like that be avoided in react/preact to make things faster?
+
+why diffing is a thing
+  because you don't call "render" normally
+  because changing dom triggers re-rendering each time
+    or rather it triggers a single re-render
+
+is that element-level diffing just implementing a missing functionality of DOM API?
+why is this a thing? browser doesn't do rendering right away anyway?
+  so what the browser does, and what should it do?
+    
+but that would require a native support for pub-sub thingies
+  rly? elm doesn't do that
+
+benchmark attaching flat off screen
+and of attaching on-screen but to element different than body
+and that of attaching bottom-up
+
+it looks like a great thing to poorly automate
+but working with the profiler api would probably be a pain in the ass
+would have to use playwright or something
+
+
+
+There are 2 problems that vdom libraries are trying to solve:
+  - imperative way clunky
+  - declarative way slow (and breaks things)
+
+imperative
+  change this thing now
+declarative
+  here's how this thing should always be
+
+
+just explicitly memoize what you wanna memoize?
+  that has to use 1st level diffing
+  that's components for ya
+    but what about component results?
+    what do they get matched with?
+      you can store 'em in the vnode
+
+is replacing the child with itself fast?
+
+
+with tag
+  none 
+    create tag, assign props, attach
+  text 
+    create text, replace
+  tag 
+    different type
+      create tag, assign props, replace
+    different props
+      assign props
+with text
+  none 
+    create text, attach
+  text 
+    assign data
+  tag 
+    create text, attach
+    replace
+
+^^ that's what pattern matching is good for
+
+what if the old vnode has same children as the new one
+  if a tag gets replaced it's children have to be re-attached even if they don't change
+    parentChanged param
+      but it always changes in that case
+
+passing index, root and isNew?
+a function that just creates, but doesn't attach?
+
+
+deleting orphaned nodes
+  for now just delete nodes above the new child count
+
+can use cases for keys be avoided by wrapping stuff in spans?
+
+the bug
+  happens when a text node gets replaced by a tag
+  period 4 behavior ???
+  solution
+    element.replaceWith() only fiddles with the element's parent
+    it doesn't mutate the element,
+    it doesn't return anything
+
+
+
+
+the stupidest way to do it is just returning strings and parsing it all as HTML at the end
+like it's PHP
+
+
+now another mind blowing insight
+html should be just lists
+
+string -> tag
+array -> list of tags
+
+turn the tag into a list and those are the children
+
+problem with diffing children
+  children list is a different object each time the tree is generated
+    
+but first, write a better benchmark
+  or rather, just write something interesting until it's laggy
+    pzaz
+  this is a good benchmark though
+    - table elements shouldn't change
+
+there's a weird clunk
+  can't have a list that starts with a text node
+
+
+
+
+okay, what now
+  - move to another repo
+  - refactor
+      need a fresh eye
+  - write a sensible interface
+    'send' pseudotag
+      so I can finally stop writing javascript
+      but I will be sending state, not view
+  - compare to react/preact
+
+does it work for svg too?
+
+inserting stuff before other stuff sounds like a way for layout recomputation
+
+
+inline vs block display - layout recomputation time 
+
+messages are better than procedure calls, because procedure calls would have to be wrapped with update logic
+
+the radical functional version passes 'send' to the view, because 'send' is a closure around immutable state
+  no, it isn't
+    it just passes 'send', because it's not in the scope where the view expression is compiled
+    - well, can always export 'send'
+    nah, it would be stupd, you don't use it 
+  yes, it is
+    how do you get send to change?
+  fukit, let's do it imperatively first
+
+even in imperative version, where 'state' is a mutable variable, 'view' and 'update' must be
+parametrized with 'state' and 'send', because they will be callbacks
+
+initializing with 'init' message
+
+lispier expression syntax?
+
+each message forces an update
+  yay
+    no need for pro forma state object update after a mutation
+  nay
+    diffing occurs when a do-nothing message gets sent
+      but do nothing messages shouldn't be sent anyway
+
+memoization
+  memo tag
+  memo prop
+  function tag
+
+
+elm is bloated
+  wiring everything sucks
+  duplication of closed functionality
+    nah? you just do it in the model
+
