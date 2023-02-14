@@ -444,3 +444,15 @@ update(model, action, message) **
 
 I've accidentally written a framework
 
+
+knobs 'n stuff
+  null namespace for attribs
+    that's because 
+  can an empty namespace be used for plain html
+    if not, can I use a html namespace?
+
+risk of sneaky mutation?
+  try to write something larger immutably and then try to write it as easy as possible 
+
+
+
