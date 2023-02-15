@@ -454,5 +454,11 @@ knobs 'n stuff
 risk of sneaky mutation?
   try to write something larger immutably and then try to write it as easy as possible 
 
+SVG 
+  can svg stuff have 'onstuff' properties?
+  vnode
+    isSVG field
+    initialized using isInSVG arg
 
-
+stuff like that ain't fun
+I can't write code that I would feel good about, because the problem is fundamentally shit

@@ -33,13 +33,21 @@ function view(model, send) {
   };
   return (
     ['span',
-      ['div',
-        ['input', {type: 'button', value: '-', onclick: () => send('dec')}],
-        ['input', {value: model.count, ref: ref, oninput: processInput}],
-        ['input', {type: 'button', value: '+', onclick: () => send('inc')}],
-      ],
-      ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},
-        `l${'o'.repeat(100)}ng text`
+      ['div', {style: 'display: flex; column-gap: 0.6em; align-items: center'},
+        ['div', 
+          ['div',
+            ['input', {type: 'button', value: '-', onclick: () => send('dec')}],
+            ['input', {value: model.count, ref: ref, oninput: processInput}],
+            ['input', {type: 'button', value: '+', onclick: () => send('inc')}],
+          ],
+          ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},
+            `l${'o'.repeat(100)}ng text`
+          ],
+        ],
+        ['svg', {style: 'width: 40px; height: 40px;'},
+          ['circle', {cx: '20px', cy: '20px', r: '20px'}],
+        ],
+        'dfsdfdsf',
       ],
       (model.count % 2) ? 'odd' : ['b', 'even'],
       ['table',
