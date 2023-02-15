@@ -16,7 +16,7 @@ function propsAssign(el, vnode) { //just pass vnode
   if (vnode.isSVG) {
     for (const [k, v] of Object.entries(props)) {
       if (['string', 'number'].includes(typeof(v))) el.setAttributeNS(null, k, v); //TODO check for numbers
-      //set event handlers
+      if (typeof(v) === 'function') el[k] = v;
     }
   } else {
     Object.assign(el, props);
