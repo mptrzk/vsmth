@@ -38,7 +38,9 @@ seems meh for small state like togglable tree views
 
 counter instead of queue?
 
-to make it strictly VM, render sets up message queue
+
+[TODO]
+to make it strictly VM, render sets up message queue 
   can't it just dispatch an event?
     not quite?
     test how events work
@@ -451,8 +453,6 @@ knobs 'n stuff
   can an empty namespace be used for plain html
     if not, can I use a html namespace?
 
-risk of sneaky mutation?
-  try to write something larger immutably and then try to write it as easy as possible 
 
 SVG 
   can svg stuff have 'onstuff' properties?
@@ -462,3 +462,59 @@ SVG
 
 stuff like that ain't fun
 I can't write code that I would feel good about, because the problem is fundamentally shit
+  it wasn't that hard though!
+
+
+
+challenges of VM architecture
+  wiring
+   
+a tree of knobs
+
+It might be a thing where I spend a couple of days doing something dumb and prove myself right...
+
+risk of sneaky mutation?
+  try to write something larger immutably and then try to write it as easy as possible 
+    that's topsy-turvy
+      AIP for the win
+      you won't see if the risk in the dangerous version exists while doing it the safe way
+    why did I think like that?
+      maybe because that way I would have something that works when stuff breaks?
+
+AIP way
+  pass a message with the object reference
+  mutate it
+  profit?
+but why not mutate it right away and tell the thing to update itself?
+  because stuff is likely to be still rendering
+    no, it's not?
+
+a scope where stuff can only be mutated in closures
+
+a fucktonobigclosures?
+  maybe they're not that big
+  just pull them out
+
+diffing anonymous functions
+  - they're already diffed the right way
+    not quite, if they just defer computation the result is a different function
+  - ignore it
+    but the closures should update!
+      rly?
+        yeah! they're closures. If the variable they closure over changes, they have to change
+  - stringify if anonymous
+    different closures have the same stringification
+    
+even more AIP way would be to export the model
+  there's only one model anyway!
+  you just set the model, bind the view and go
+  you'll always be binding document.body, so render can be 0-adic
+
+however it would be kinda nice if the model was to be explicitly passed as an argument
+
+init:
+  set the model
+  bind the view
+
+can I fork my own project on github?
+
