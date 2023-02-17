@@ -518,3 +518,11 @@ init:
 
 can I fork my own project on github?
 
+getting rid of the update function adds complexity
+  message passing allows for additional logic such as stuff to be done for a group of messages
+    the case I had for this proved to be unnecessary
+  ^^ that's unnecessary
+
+updateKnob?
+
+it's not about doing stuff the dumb way, it's about not doing stuff just because it looks smart

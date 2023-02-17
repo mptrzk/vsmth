@@ -1,80 +1,72 @@
 import {init} from './vsmth.js'
+//import {init, model, bind} from './vsmth.js'
+
 
 const model = {
   count: 0,
   knob: 0,
   locked: false,
-  wasTyped: false,
 }
 
-function update(model, action, message) {
-  model.wasTyped = false;
-  switch (action) {
-    case 'inc':
-      model.count++;
-      return model;
-    case 'dec':
-      model.count--;
-      return model;
-    case 'set':
-      model.count = message;
-      model.wasTyped = true;
-      return model;
-    case 'lock':
-      model.locked = true;
-      return model;
-    case 'unlock':
-      model.locked = false;
-      return model;
-    case 'move':
-      model.knob -= message;
-      return model;
-    default:
-      console.error(`invalid action - ${action}`);
-  }
-}
 
-function view(model, send) {
-  const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
-  const ref = {};
-  const lock = {};
-  function processInput() {
-    const val = parseInt(ref.current.value);
-    if (val === undefined || isNaN(val)) return;
-    send('set', parseInt(val));
-  };
+function viewKnob(knob, model, draw) {
+  const knobRef = {};
   function locc() {
-    lock.current.requestPointerLock();
-    send('lock');
+    knobRef.current.requestPointerLock();
+    model.locked = true;
+    //updating model without re-rendering. That's cool
   }
-  function move(e) {
-    if (model.locked) send('move', e.movementY);
+  function move(e) { //change to turn
+    if (model.locked) {
+      model.knob -= e.movementY;
+      draw();
+    }
   }
   function unlocc() {
     document.exitPointerLock();
-    send('unlock');
+    model.locked = false;
   }
+  return (
+    ['svg', {style: 'width: 40px; height: 40px;'},
+      ['g', {transform: `rotate(${model.knob}, 20, 20)`},
+        ['circle', {ref: knobRef, cx: 20, cy: 20, r: 20, onmousedown: locc, onmouseup: unlocc, onmousemove: e => move(e)}],
+        ['rect', {x: 20-1.5, y: 2, width: 3, height: `30%`, fill: 'white'}],
+      ],
+    ]
+  );
+}
+
+function view(model, draw) {
+  const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
+  const ref = {};
+  function inc() {
+    model.count++;
+    draw();
+  }
+  function dec() {
+    model.count--;
+    draw();
+  }
+  function write() {
+    const val = parseInt(ref.current.value);
+    if (val === undefined || isNaN(val)) return;
+    model.count = parseInt(val);
+    draw();
+  };
   return (
     ['span',
       ['div', {style: 'display: flex; column-gap: 0.6em; align-items: center'},
         ['div', 
           ['div',
-            ['input', {type: 'button', value: '-', onclick: () => send('dec')}],
-            ['input', {value: model.count, ref: ref, oninput: processInput}],
-            ['input', {type: 'button', value: '+', onclick: () => send('inc')}],
+            ['input', {type: 'button', value: '-', onclick: dec}],
+            ['input', {value: model.count, ref: ref, oninput: write}],
+            ['input', {type: 'button', value: '+', onclick: inc}],
           ],
           ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},
             `l${'o'.repeat(100)}ng text`
           ],
         ],
-        ['div', 
-          ['svg', {style: 'width: 40px; height: 40px;'},
-            ['g', {transform: `rotate(${model.knob}, 20, 20)`},
-              ['circle', {ref: lock, cx: 20, cy: 20, r: 20, onmousedown: locc, onmouseup: unlocc, onmousemove: e => move(e)}],
-              ['rect', {x: 20-1.5, y: 2, width: 3, height: `30%`, fill: 'white'}],
-            ],
-          ],
-        ],
+        viewKnob(model.knob, model, draw),
         `pokrętność - ${model.knob}°`,
       ],
       (model.count % 2) ? 'odd' : ['b', 'even'],
@@ -92,5 +84,5 @@ function view(model, send) {
   );
 }
 
-init(model, update, view, document.body);
+init(model, view, document.body);
 

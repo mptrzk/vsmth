@@ -103,13 +103,12 @@ function render(expr, root) {
 }
 
 let model_g;
-function init(model, update, view, root) {
+function init(model, view, root) {
   model_g = model;
-  function send(action, message) {
-    model_g = update(model_g, action, message);
-    render(view(model_g, send), root);
+  function draw() {
+    render(view(model_g, draw), root);
   }
-  render(view(model_g, send), root);
+  render(view(model_g, draw), root);
 }
 
 export {init};
