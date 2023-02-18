@@ -103,19 +103,13 @@ function render(expr, root) {
 }
 
 let model_g;
-let view_g;
-let root_g;
-
-function draw() {
-  render(view_g(model_g), root_g);
-}
-
 function init(model, view, root) {
   model_g = model;
-  view_g = view;
-  root_g = root;
-  render(view(model_g, draw), root_g);
+  function draw() {
+    render(view(model_g, draw), root);
+  }
+  render(view(model_g, draw), root);
 }
 
-export {init, draw};
+export {init};
 

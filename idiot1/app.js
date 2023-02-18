@@ -1,5 +1,5 @@
-import {init, draw} from './vsmth.js'
-//import {model, bind, draw} from './vsmth.js'
+import {init} from './vsmth.js'
+//import {init, model, bind} from './vsmth.js'
 
 
 const model = {
@@ -9,7 +9,7 @@ const model = {
 }
 
 
-function viewKnob(knob, model) {
+function viewKnob(knob, model, draw) {
   const knobRef = {};
   function locc() {
     knobRef.current.requestPointerLock();
@@ -36,7 +36,7 @@ function viewKnob(knob, model) {
   );
 }
 
-function view(model) {
+function view(model, draw) {
   const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
   const ref = {};
   function inc() {
@@ -66,7 +66,7 @@ function view(model) {
             `l${'o'.repeat(100)}ng text`
           ],
         ],
-        viewKnob(model.knob, model),
+        viewKnob(model.knob, model, draw),
         `pokrętność - ${model.knob}°`,
       ],
       (model.count % 2) ? 'odd' : ['b', 'even'],

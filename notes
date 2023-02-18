@@ -14,6 +14,8 @@ is glossary even that useful?
 ==================================================
 ;WHY?
 
+
+I wanna have cool demos 
 So in vanilla JS you can modify DOM
 
 ==================================================
@@ -46,7 +48,7 @@ to make it strictly VM, render sets up message queue
     test how events work
 
 ==================================================
-;JS TANGENTS
+;BROWSER STUFF
 
 events
   events are for doing stuff after thing that's done now finishes
@@ -58,6 +60,15 @@ event vs
 
 what are workers anyway?
   what can be done with them better?
+
+setting attribs like normal object properties?
+
+what's style recomputation anyway
+how is it different from layout
+
+or write a browser!
+it's just text and boxes
+
 
 ==================================================
 ;SMALL DOM LIBRARIES
@@ -117,46 +128,16 @@ no components?
   list of elements that expands and shrinks
 
 ==================================================
-;DEPRECATED
-
-==================================================
-;UNCATEGORIZED
-
-components returning multiple vnodes
+;COMPONENTS
 
 with expanding components there would be more vnodes than dom elements
 why make component-vnodes?
   state and stuff
 
-attaching stuff lower down eliminates the need to concatenate arrays
-  but isn't concatenating arrays cheaper?
-    is attaching stuff lower down expensive?
-      it should be AFAIK
-      it shouldn't matter if the top-level node is detached AFAIK 
-
 handling fragments within fragments
 
-each component has a vnode
-fragment is a component
-fragment adds no vnodes
-
-
-handling children
-  vnode -> just insert
-  array -> insert a fragment
-  other -> insert text
-
-setting attribs like normal object properties?
-
-[move]
-  </> in htm?
-  code styling - more new lines between things related to a single component at the top level
-
-wild idea
-  reactive vdom viewer
-
-
-
+==================================================
+;UNCATEGORIZED
 
 So what am I trying to do anyway?
 I'm trying to find out what takes so long?
@@ -164,13 +145,6 @@ Does anything take long?
 Imagine somebody said "naah, it's all negligible, you can re-render the whole dom after each change and it would be OK"
 Whatever dude, just do it the easiest way until it's slow
 
-what's style recomputation anyway
-how is it different from layout
-
-or write a browser!
-it's just text and boxes
-
-but I wanna have a cool demos 
 
 
 so diffing can occur on 2 levels
@@ -178,6 +152,7 @@ before calling components
 before updating dom
 preact doesn't seem to diff before updating components
 
+[move]
 I don't like hideous code
 It's different when ugly code is fundamentally easier to write
 
@@ -198,6 +173,7 @@ is stuff like absolute position in calculated style?
 I was doing those benchmarks because I wanted to know what's actually slow
 
 what if the two levels of diffing are combined?
+  whaddyameen combined?
   a fustercluck?
   plenty o' trees
 
@@ -471,7 +447,6 @@ challenges of VM architecture
    
 a tree of knobs
 
-It might be a thing where I spend a couple of days doing something dumb and prove myself right...
 
 risk of sneaky mutation?
   try to write something larger immutably and then try to write it as easy as possible 
@@ -516,7 +491,6 @@ init:
   set the model
   bind the view
 
-can I fork my own project on github?
 
 getting rid of the update function adds complexity
   message passing allows for additional logic such as stuff to be done for a group of messages
@@ -525,4 +499,32 @@ getting rid of the update function adds complexity
 
 updateKnob?
 
-it's not about doing stuff the dumb way, it's about not doing stuff just because it looks smart
+global model might be ugly
+
+so it's much easier to think what is the document we want rather than
+how to get from whatever the document might be at the time to the document at the time
+
+maybe it would be better to copy index.html into each of the alternative repos
+maybe it would be even better to write that weird bash script that commits the notes to all branches...
+
+==================================================
+;OLD
+
+components returning multiple vnodes
+
+attaching stuff lower down eliminates the need to concatenate arrays
+  but isn't concatenating arrays cheaper?
+    is attaching stuff lower down expensive?
+      it should be AFAIK
+      it shouldn't matter if the top-level node is detached AFAIK 
+
+each component has a vnode
+fragment is a component
+fragment adds no dom nodes
+not every vnode is bound to a dom node
+
+handling children
+  vnode -> just insert
+  array -> insert a fragment
+  other -> insert text
+
