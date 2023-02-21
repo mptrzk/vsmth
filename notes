@@ -139,148 +139,215 @@ handling fragments within fragments
 ==================================================
 ;UNCATEGORIZED
 
-So what am I trying to do anyway?
-I'm trying to find out what takes so long?
-Does anything take long?
-Imagine somebody said "naah, it's all negligible, you can re-render the whole dom after each change and it would be OK"
-Whatever dude, just do it the easiest way until it's slow
+
+not bothering to diff invisible
+
+https://www.w3.org/TR/MathML2/byalpha.html
+
+maybe it would be better to copy index.html into each of the alternative repos
+maybe it would be even better to write that weird bash script that commits the notes to all branches...
+
+so it's much easier to think what is the document we want rather than
+how to get from whatever the document might be at the time to the document at the time
+
+global model might be ugly
+
+updateKnob?
+
+getting rid of the update function adds complexity
+  message passing allows for additional logic such as stuff to be done for a group of messages
+    the case I had for this proved to be unnecessary
+  ^^ that's unnecessary
 
 
+init:
+  set the model
+  bind the view
 
-so diffing can occur on 2 levels
-before calling components
-before updating dom
-preact doesn't seem to diff before updating components
+however it would be kinda nice if the model was to be explicitly passed as an argument
 
-[move]
-I don't like hideous code
-It's different when ugly code is fundamentally easier to write
-
-then there are preact signals
-isn't this whtat the browser should be doing anyway?
-
-web app is portable sandboxed program
-web browser is an OS with a standard library for IO and rendering multimedia
-meh...
-another way - how it emerged
-documents, scripting, other multimedia
-vector graphics
-
-components in reactish frameworks
-  their children and the results
-
-is stuff like absolute position in calculated style?
-I was doing those benchmarks because I wanted to know what's actually slow
-
-what if the two levels of diffing are combined?
-  whaddyameen combined?
-  a fustercluck?
-  plenty o' trees
-
-why have components when you have only 2nd level diffing?
-  for fragments?
-    why not just use lists?
-
-why am I trying to write a vdom?
-because I didn't know what I was doing 
-...
-I wanna know If I'm doing an actual workaround or just LARPng
-
-I do stuff based on how I've seen it done
-I start to repeat stuff a lot
-I ask myself is it really necessary?
-I start coming up with workarounds that achieve the same functionality
-but they look ugly
-
-
-so you want a thing that manages a part of dom to update it
-but you might want to update only a small bit
-
-recursive flattening
-
-the weird problem that would be solved by lisp's quasiquote with spread
-  that's for components and stuff, leave it for now
-
-where do old vnodes go?
-
-so components can work by separating children and results
-  the vnode tree is larger than the dom tree
-  the "attachment node" can be passed down through multiple components
-
-
-I don't know if the lispy editor thingy needs the speed from diffing tbh
-
-
-let's try the elmish way first
-what gets diffed corresponds to a proper DOM tree
-  model immutability doesn't seem to be required
-    why would it be
-      diffing props
-    but only atomic props are assigned to the vnodes when there are no components
-
-queueeless way:
-  diffing and updating in one call
-  relies on the bottom-up attachment being faster
-    rly?
-    top-down attachment is more convenient
-      why?
-      but
-        ddoesn't it require creating new elements to avoid spurious rendering in cases where the bottom up way would avoid it?
-    attaching to the parent within a call doesn't mean top down, if the children stuff is done before it
-      but is passing the parent a good idea anyway?
-  if elements differ:
-    diff the children
-  stuff gets attached only if some element only differs by children
-  
-
-when do elements differ
-  different type and props
-  what about keys and stuff?
-  that's when elements get moved or something
-  or an element appears between others
-    should stuff like that be avoided in react/preact to make things faster?
-
-why diffing is a thing
-  because you don't call "render" normally
-  because changing dom triggers re-rendering each time
-    or rather it triggers a single re-render
-
-is that element-level diffing just implementing a missing functionality of DOM API?
-why is this a thing? browser doesn't do rendering right away anyway?
-  so what the browser does, and what should it do?
+even more AIP way would be to export the model
+  there's only one model anyway!
+  you just set the model, bind the view and go
+  you'll always be binding document.body, so render can be 0-adic
     
-but that would require a native support for pub-sub thingies
-  rly? elm doesn't do that
+diffing anonymous functions
+  - they're already diffed the right way
+    not quite, if they just defer computation the result is a different function
+  - ignore it
+    but the closures should update!
+      rly?
+        yeah! they're closures. If the variable they closure over changes, they have to change
+  - stringify if anonymous
+    different closures have the same stringification
 
-benchmark attaching flat off screen
-and of attaching on-screen but to element different than body
-and that of attaching bottom-up
+a fucktonobigclosures?
+  maybe they're not that big
+  just pull them out
 
-it looks like a great thing to poorly automate
-but working with the profiler api would probably be a pain in the ass
-would have to use playwright or something
+a scope where stuff can only be mutated in closures
+
+AIP way
+  pass a message with the object reference
+  mutate it
+  profit?
+but why not mutate it right away and tell the thing to update itself?
+  because stuff is likely to be still rendering
+    no, it's not?
+
+risk of sneaky mutation?
+  try to write something larger immutably and then try to write it as easy as possible 
+    that's topsy-turvy
+      AIP for the win
+      you won't see if the risk in the dangerous version exists while doing it the safe way
+    why did I think like that?
+      maybe because that way I would have something that works when stuff breaks?
+
+
+a tree of knobs
+   
+challenges of VM architecture
+  wiring
+
+
+stuff like that ain't fun
+I can't write code that I would feel good about, because the problem is fundamentally shit
+  it wasn't that hard though!
+
+SVG 
+  can svg stuff have 'onstuff' properties?
+  vnode
+    isSVG field
+    initialized using isInSVG arg
+
+
+knobs 'n stuff
+  null namespace for attribs
+    that's because 
+  can an empty namespace be used for plain html
+    if not, can I use a html namespace?
+
+
+I've accidentally written a framework
+
+update(model, subject, message)
+update(model, header, message)
+update(model, action, message) **
+
+maybe the whole messages instead of functions thingy deserves a writeup
+
+or maybe single-arg messages are ugly
+  this too
+
+initializing with a message is ugly after all
+  returning initial state pro forma just sticks out before the common logic for other messages
+
+elm is bloated
+  wiring everything sucks
+  duplication of closed functionality
+    nah? you just do it in the model
+
+
+memoization
+  memo tag
+  memo prop
+  function tag
+
+each message forces an update
+  yay
+    no need for pro forma state object update after a mutation
+  nay
+    diffing occurs when a do-nothing message gets sent
+      but do nothing messages shouldn't be sent anyway
+
+lispier expression syntax?
+
+initializing with 'init' message
+
+even in imperative version, where 'state' is a mutable variable, 'view' and 'update' must be
+parametrized with 'state' and 'send', because they will be callbacks
+
+the radical functional version passes 'send' to the view, because 'send' is a closure around immutable state
+  no, it isn't
+    it just passes 'send', because it's not in the scope where the view expression is compiled
+    - well, can always export 'send'
+    nah, it would be stupd, you don't use it 
+  yes, it is
+    how do you get send to change?
+  fukit, let's do it imperatively first
+
+messages are better than procedure calls, because procedure calls would have to be wrapped with update logic 
+
+inline vs block display - layout recomputation time
+
+
+inserting stuff before other stuff sounds like a way for layout recomputation
+
+does it work for svg too?
+
+okay, what now
+  - move to another repo
+  - refactor
+      need a fresh eye
+  - write a sensible interface
+    'send' pseudotag
+      so I can finally stop writing javascript
+      but I will be sending state, not view
+  - compare to react/preact
 
 
 
-There are 2 problems that vdom libraries are trying to solve:
-  - imperative way clunky
-  - declarative way slow (and breaks things)
 
-imperative
-  change this thing now
-declarative
-  here's how this thing should always be
+there's a weird clunk
+  can't have a list that starts with a text node
+
+but first, write a better benchmark
+  or rather, just write something interesting until it's laggy
+    pzaz
+  this is a good benchmark though
+    - table elements shouldn't change
+    
+problem with diffing children
+  children list is a different object each time the tree is generated
+
+turn the tag into a list and those are the children
+
+string -> tag
+array -> list of tags
+
+now another mind blowing insight
+html should be just lists
 
 
-just explicitly memoize what you wanna memoize?
-  that has to use 1st level diffing
-  that's components for ya
-    but what about component results?
-    what do they get matched with?
-      you can store 'em in the vnode
+the stupidest way to do it is just returning strings and parsing it all as HTML at the end
+like it's PHP
 
-is replacing the child with itself fast?
 
+
+
+the bug
+  happens when a text node gets replaced by a tag
+  period 4 behavior ???
+  solution
+    element.replaceWith() only fiddles with the element's parent
+    it doesn't mutate the element,
+    it doesn't return anything
+
+can use cases for keys be avoided by wrapping stuff in spans?
+
+deleting orphaned nodes
+  for now just delete nodes above the new child count
+
+
+passing index, root and isNew?
+a function that just creates, but doesn't attach?
+
+what if the old vnode has same children as the new one
+  if a tag gets replaced it's children have to be re-attached even if they don't change
+    parentChanged param
+      but it always changes in that case
+
+^^ that's what pattern matching is good for
 
 with tag
   none 
@@ -301,211 +368,149 @@ with text
     create text, attach
     replace
 
-^^ that's what pattern matching is good for
 
-what if the old vnode has same children as the new one
-  if a tag gets replaced it's children have to be re-attached even if they don't change
-    parentChanged param
-      but it always changes in that case
+is replacing the child with itself fast?
 
-passing index, root and isNew?
-a function that just creates, but doesn't attach?
+just explicitly memoize what you wanna memoize?
+  that has to use 1st level diffing
+  that's components for ya
+    but what about component results?
+    what do they get matched with?
+      you can store 'em in the vnode
 
 
-deleting orphaned nodes
-  for now just delete nodes above the new child count
+imperative
+  change this thing now
+declarative
+  here's how this thing should always be
 
-can use cases for keys be avoided by wrapping stuff in spans?
-
-the bug
-  happens when a text node gets replaced by a tag
-  period 4 behavior ???
-  solution
-    element.replaceWith() only fiddles with the element's parent
-    it doesn't mutate the element,
-    it doesn't return anything
+There are 2 problems that vdom libraries are trying to solve:
+  - imperative way clunky
+  - declarative way slow (and breaks things)
 
 
 
+it looks like a great thing to poorly automate
+but working with the profiler api would probably be a pain in the ass
+would have to use playwright or something
 
-the stupidest way to do it is just returning strings and parsing it all as HTML at the end
-like it's PHP
+benchmark attaching flat off screen
+and of attaching on-screen but to element different than body
+and that of attaching bottom-up
 
-
-now another mind blowing insight
-html should be just lists
-
-string -> tag
-array -> list of tags
-
-turn the tag into a list and those are the children
-
-problem with diffing children
-  children list is a different object each time the tree is generated
+but that would require a native support for pub-sub thingies
+  rly? elm doesn't do that
     
-but first, write a better benchmark
-  or rather, just write something interesting until it's laggy
-    pzaz
-  this is a good benchmark though
-    - table elements shouldn't change
+is that element-level diffing just implementing a missing functionality of DOM API?
+why is this a thing? browser doesn't do rendering right away anyway?
+  so what the browser does, and what should it do?
 
-there's a weird clunk
-  can't have a list that starts with a text node
+why diffing is a thing
+  because you don't call "render" normally
+  because changing dom triggers re-rendering each time
+    or rather it triggers a single re-render
 
+when do elements differ
+  different type and props
+  what about keys and stuff?
+  that's when elements get moved or something
+  or an element appears between others
+    should stuff like that be avoided in react/preact to make things faster?
+  
 
+queueeless way:
+  diffing and updating in one call
+  relies on the bottom-up attachment being faster
+    rly?
+    top-down attachment is more convenient
+      why?
+      but
+        ddoesn't it require creating new elements to avoid spurious rendering in cases where the bottom up way would avoid it?
+    attaching to the parent within a call doesn't mean top down, if the children stuff is done before it
+      but is passing the parent a good idea anyway?
+  if elements differ:
+    diff the children
+  stuff gets attached only if some element only differs by children
 
-
-okay, what now
-  - move to another repo
-  - refactor
-      need a fresh eye
-  - write a sensible interface
-    'send' pseudotag
-      so I can finally stop writing javascript
-      but I will be sending state, not view
-  - compare to react/preact
-
-does it work for svg too?
-
-inserting stuff before other stuff sounds like a way for layout recomputation
-
-
-inline vs block display - layout recomputation time 
-
-messages are better than procedure calls, because procedure calls would have to be wrapped with update logic
-
-the radical functional version passes 'send' to the view, because 'send' is a closure around immutable state
-  no, it isn't
-    it just passes 'send', because it's not in the scope where the view expression is compiled
-    - well, can always export 'send'
-    nah, it would be stupd, you don't use it 
-  yes, it is
-    how do you get send to change?
-  fukit, let's do it imperatively first
-
-even in imperative version, where 'state' is a mutable variable, 'view' and 'update' must be
-parametrized with 'state' and 'send', because they will be callbacks
-
-initializing with 'init' message
-
-lispier expression syntax?
-
-each message forces an update
-  yay
-    no need for pro forma state object update after a mutation
-  nay
-    diffing occurs when a do-nothing message gets sent
-      but do nothing messages shouldn't be sent anyway
-
-memoization
-  memo tag
-  memo prop
-  function tag
+let's try the elmish way first
+what gets diffed corresponds to a proper DOM tree
+  model immutability doesn't seem to be required
+    why would it be
+      diffing props
+    but only atomic props are assigned to the vnodes when there are no components
 
 
-elm is bloated
-  wiring everything sucks
-  duplication of closed functionality
-    nah? you just do it in the model
-
-initializing with a message is ugly after all
-  returning initial state pro forma just sticks out before the common logic for other messages
-
-or maybe single-arg messages are ugly
-  this too
-
-maybe the whole messages instead of functions thingy deserves a writeup
-
-update(model, subject, message)
-update(model, header, message)
-update(model, action, message) **
-
-I've accidentally written a framework
+I don't know if the lispy editor thingy needs the speed from diffing tbh
 
 
-knobs 'n stuff
-  null namespace for attribs
-    that's because 
-  can an empty namespace be used for plain html
-    if not, can I use a html namespace?
+so components can work by separating children and results
+  the vnode tree is larger than the dom tree
+  the "attachment node" can be passed down through multiple components
+
+where do old vnodes go?
+
+the weird problem that would be solved by lisp's quasiquote with spread
+  that's for components and stuff, leave it for now
+
+recursive flattening
+
+so you want a thing that manages a part of dom to update it
+but you might want to update only a small bit
 
 
-SVG 
-  can svg stuff have 'onstuff' properties?
-  vnode
-    isSVG field
-    initialized using isInSVG arg
+I do stuff based on how I've seen it done
+I start to repeat stuff a lot
+I ask myself is it really necessary?
+I start coming up with workarounds that achieve the same functionality
+but they look ugly
 
-stuff like that ain't fun
-I can't write code that I would feel good about, because the problem is fundamentally shit
-  it wasn't that hard though!
+why am I trying to write a vdom?
+because I didn't know what I was doing 
+...
+I wanna know If I'm doing an actual workaround or just LARPng
 
+why have components when you have only 2nd level diffing?
+  for fragments?
+    why not just use lists?
 
+what if the two levels of diffing are combined?
+  whaddyameen combined?
+  a fustercluck?
+  plenty o' trees
 
-challenges of VM architecture
-  wiring
-   
-a tree of knobs
+is stuff like absolute position in calculated style?
+I was doing those benchmarks because I wanted to know what's actually slow
 
+components in reactish frameworks
+  their children and the results
 
-risk of sneaky mutation?
-  try to write something larger immutably and then try to write it as easy as possible 
-    that's topsy-turvy
-      AIP for the win
-      you won't see if the risk in the dangerous version exists while doing it the safe way
-    why did I think like that?
-      maybe because that way I would have something that works when stuff breaks?
+web app is portable sandboxed program
+web browser is an OS with a standard library for IO and rendering multimedia
+meh...
+another way - how it emerged
+documents, scripting, other multimedia
+vector graphics
 
-AIP way
-  pass a message with the object reference
-  mutate it
-  profit?
-but why not mutate it right away and tell the thing to update itself?
-  because stuff is likely to be still rendering
-    no, it's not?
+then there are preact signals
+isn't this whtat the browser should be doing anyway?
 
-a scope where stuff can only be mutated in closures
+[move]
+I don't like hideous code
+It's different when ugly code is fundamentally easier to write
 
-a fucktonobigclosures?
-  maybe they're not that big
-  just pull them out
-
-diffing anonymous functions
-  - they're already diffed the right way
-    not quite, if they just defer computation the result is a different function
-  - ignore it
-    but the closures should update!
-      rly?
-        yeah! they're closures. If the variable they closure over changes, they have to change
-  - stringify if anonymous
-    different closures have the same stringification
-    
-even more AIP way would be to export the model
-  there's only one model anyway!
-  you just set the model, bind the view and go
-  you'll always be binding document.body, so render can be 0-adic
-
-however it would be kinda nice if the model was to be explicitly passed as an argument
-
-init:
-  set the model
-  bind the view
+so diffing can occur on 2 levels
+before calling components
+before updating dom
+preact doesn't seem to diff before updating components
 
 
-getting rid of the update function adds complexity
-  message passing allows for additional logic such as stuff to be done for a group of messages
-    the case I had for this proved to be unnecessary
-  ^^ that's unnecessary
 
-updateKnob?
+So what am I trying to do anyway?
+I'm trying to find out what takes so long?
+Does anything take long?
+Imagine somebody said "naah, it's all negligible, you can re-render the whole dom after each change and it would be OK"
+Whatever dude, just do it the easiest way until it's slow
 
-global model might be ugly
-
-so it's much easier to think what is the document we want rather than
-how to get from whatever the document might be at the time to the document at the time
-
-maybe it would be better to copy index.html into each of the alternative repos
-maybe it would be even better to write that weird bash script that commits the notes to all branches...
 
 ==================================================
 ;OLD
