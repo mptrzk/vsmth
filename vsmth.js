@@ -102,19 +102,17 @@ function render(expr, root) {
   vdom_g = vnew;
 }
 
-let model_g;
 let view_g;
 let root_g;
 
 function draw() {
-  render(view_g(model_g), root_g);
+  render(view_g(), root_g);
 }
 
-function init(model, view, root) {
-  model_g = model;
+function init(view, root) {
   view_g = view;
   root_g = root;
-  render(view(model_g, draw), root_g);
+  render(view_g(), root_g);
 }
 
 export {init, draw};

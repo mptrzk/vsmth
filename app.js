@@ -4,39 +4,58 @@ import {init, draw} from './vsmth.js'
 
 const model = {
   count: 0,
-  knob: 0,
+  knob1: {
+    title: 'pokrętność',
+    angle: 0,
+  },
+  knob2: {
+    title: 'gain',
+    angle: 0, 
+    //push: angle => model.gain = angle/140*30
+  },
   locked: false,
 }
 
+//one global vs many
+//^^model.stuff is nicer to read
 
-function viewKnob(knob, model) {
+function viewKnob(knob) {
   const knobRef = {};
-  function locc() {
+  function lock() {
     knobRef.current.requestPointerLock();
     model.locked = true;
     //updating model without re-rendering. That's cool
   }
-  function move(e) { //change to turn
+  function turn(e) { //change to turn
     if (model.locked) {
-      model.knob -= e.movementY;
+      knob.angle -= e.movementY;
+      //knob.submit(angle - movement)
+      //knob.angle = knob.update()
       draw();
     }
   }
-  function unlocc() {
+  function unlock() {
     document.exitPointerLock();
     model.locked = false;
   }
+  const events = {onmousedown: lock, onmouseup: unlock, onmousemove: turn};
   return (
-    ['svg', {style: 'width: 40px; height: 40px;'},
-      ['g', {transform: `rotate(${model.knob}, 20, 20)`},
-        ['circle', {ref: knobRef, cx: 20, cy: 20, r: 20, onmousedown: locc, onmouseup: unlocc, onmousemove: e => move(e)}],
-        ['rect', {x: 20-1.5, y: 2, width: 3, height: `30%`, fill: 'white'}],
-      ],
+    ['div',
+      ['div', {className: 'knob'},
+        ['span', {style: 'margin-bottom: 0.1em'}, knob.title],
+        ['svg', {style: 'width: 40px; height: 40px;'},
+          ['g', {transform: `rotate(${knob.angle}, 20, 20)`, ...events}, //using a function wouldn't be so pretty here
+            ['circle', {ref: knobRef, cx: 20, cy: 20, r: 20}],
+            ['rect', {x: 20-1.5, y: 2, width: 3, height: `30%`, fill: 'white'}],
+          ],
+        ],
+        knob.angle,
+      ]
     ]
   );
 }
 
-function view(model) {
+function view() {
   const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
   const ref = {};
   function inc() {
@@ -55,19 +74,19 @@ function view(model) {
   };
   return (
     ['span',
-      ['div', {style: 'display: flex; column-gap: 0.6em; align-items: center'},
-        ['div', 
-          ['div',
-            ['input', {type: 'button', value: '-', onclick: dec}],
-            ['input', {value: model.count, ref: ref, oninput: write}],
-            ['input', {type: 'button', value: '+', onclick: inc}],
-          ],
-          ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},
-            `l${'o'.repeat(100)}ng text`
-          ],
+      ['div', 
+        ['div',
+          ['input', {type: 'button', value: '-', onclick: dec}],
+          ['input', {value: model.count, ref: ref, oninput: write}],
+          ['input', {type: 'button', value: '+', onclick: inc}],
         ],
-        viewKnob(model.knob, model),
-        `pokrętność - ${model.knob}°`,
+        ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},
+          `l${'o'.repeat(100)}ng text`
+        ],
+      ],
+      ['div', {style: 'display: flex; padding: 5px'},
+        viewKnob(model.knob1),
+        viewKnob(model.knob2),
       ],
       (model.count % 2) ? 'odd' : ['b', 'even'],
       ['table',
@@ -84,5 +103,5 @@ function view(model) {
   );
 }
 
-init(model, view, document.body);
+init(view, document.body);
 

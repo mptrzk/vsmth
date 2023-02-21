@@ -139,6 +139,14 @@ handling fragments within fragments
 ==================================================
 ;UNCATEGORIZED
 
+"draw" as a return value from init
+
+no model
+  
+
+"draw" as a parameter or a global?
+  global
+  parameter
 
 not bothering to diff invisible
 
@@ -158,7 +166,6 @@ getting rid of the update function adds complexity
   message passing allows for additional logic such as stuff to be done for a group of messages
     the case I had for this proved to be unnecessary
   ^^ that's unnecessary
-
 
 init:
   set the model

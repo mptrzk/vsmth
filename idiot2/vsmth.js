@@ -114,7 +114,7 @@ function init(model, view, root) {
   model_g = model;
   view_g = view;
   root_g = root;
-  render(view(model_g, draw), root_g);
+  render(view(model_g), root_g);
 }
 
 export {init, draw};
