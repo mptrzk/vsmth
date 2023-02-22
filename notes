@@ -139,6 +139,18 @@ handling fragments within fragments
 ==================================================
 ;UNCATEGORIZED
 
+knob.display(param)
+knob.display
+
+I want the toggled value to be separate from the widget
+maybe knobs shouldn't be in the model?
+
+how does V8 take care of the closures?
+  does it recompile them whenever the enclosed variable change? I hope not! that would be stupid 
+  look up how they are represented
+
+widgets referencing the model
+
 "draw" as a return value from init
 
 no model

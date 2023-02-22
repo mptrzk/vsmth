@@ -4,14 +4,21 @@ import {init, draw} from './vsmth.js'
 
 const model = {
   count: 0,
+  pk: 0,
+  gain: 0,
   knob1: {
     title: 'pokrętność',
     angle: 0,
+    push: angle => model.pk = angle,
+    pull: knob => knob.angle = model.pk,
+    display: () => model.pk,
   },
   knob2: {
     title: 'gain',
     angle: 0, 
-    //push: angle => model.gain = angle/140*30
+    push: angle => model.gain = angle/130*30,
+    pull: knob => knob.angle = model.gain/30*130,
+    display: () => Math.round(model.gain),
   },
   locked: false,
 }
@@ -26,11 +33,10 @@ function viewKnob(knob) {
     model.locked = true;
     //updating model without re-rendering. That's cool
   }
-  function turn(e) { //change to turn
+  function turn(e) {
     if (model.locked) {
-      knob.angle -= e.movementY;
-      //knob.submit(angle - movement)
-      //knob.angle = knob.update()
+      knob.push(knob.angle - e.movementY)
+      knob.pull(knob)
       draw();
     }
   }
@@ -49,7 +55,7 @@ function viewKnob(knob) {
             ['rect', {x: 20-1.5, y: 2, width: 3, height: `30%`, fill: 'white'}],
           ],
         ],
-        knob.angle,
+        knob.display(),
       ]
     ]
   );
