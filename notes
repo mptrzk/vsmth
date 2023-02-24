@@ -139,8 +139,30 @@ handling fragments within fragments
 ==================================================
 ;UNCATEGORIZED
 
+isn't that ridiculous how much computation is spent (or wasted) on rendering a simple knob turn?
+
+normalizing the reading?
+
 knob.display(param)
 knob.display
+
+interface for pushing and pulling from arbitrary widgets to params?
+
+just write a class?
+
+test case
+  a filter knob that can be both linear and logarithmic
+
+knob's angle is always dependent on the parameter and the settings
+
+knob
+  title
+  param
+  setfun
+  getfun
+  units
+
+knobs having a reference to the param, 
 
 I want the toggled value to be separate from the widget
 maybe knobs shouldn't be in the model?

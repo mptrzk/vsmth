@@ -4,30 +4,20 @@ import {init, draw} from './vsmth.js'
 
 const model = {
   count: 0,
-  pk: 0,
-  gain: 0,
-  knob1: {
-    title: 'pokrętność',
-    angle: 0,
-    push: angle => model.pk = angle,
-    pull: knob => knob.angle = model.pk,
-    display: () => model.pk,
-  },
-  knob2: {
-    title: 'gain',
-    angle: 0, 
-    push: angle => model.gain = angle/130*30,
-    pull: knob => knob.angle = model.gain/30*130,
-    display: () => Math.round(model.gain),
-  },
+  pk: {val: 0},
+  gain: {val: 0},
+  freq: {val: 440},
   locked: false,
 }
+
 
 //one global vs many
 //^^model.stuff is nicer to read
 
 function viewKnob(knob) {
   const knobRef = {};
+  const param = knob.param;
+  const angle = knob.p2r(param.val);
   function lock() {
     knobRef.current.requestPointerLock();
     model.locked = true;
@@ -35,8 +25,9 @@ function viewKnob(knob) {
   }
   function turn(e) {
     if (model.locked) {
-      knob.push(knob.angle - e.movementY)
-      knob.pull(knob)
+      param.val = knob.r2p(angle - e.movementY)
+      //wouldn't referencing the model be nicer?
+      //or even param as a key? like that: model[param]
       draw();
     }
   }
@@ -50,16 +41,18 @@ function viewKnob(knob) {
       ['div', {className: 'knob'},
         ['span', {style: 'margin-bottom: 0.1em'}, knob.title],
         ['svg', {style: 'width: 40px; height: 40px;'},
-          ['g', {transform: `rotate(${knob.angle}, 20, 20)`, ...events}, //using a function wouldn't be so pretty here
+          ['g', {transform: `rotate(${angle}, 20, 20)`, ...events}, //using a function wouldn't be so pretty here
             ['circle', {ref: knobRef, cx: 20, cy: 20, r: 20}],
             ['rect', {x: 20-1.5, y: 2, width: 3, height: `30%`, fill: 'white'}],
           ],
         ],
-        knob.display(),
+        knob.show(param.val),
       ]
     ]
   );
 }
+
+//function siPrefix()
 
 function view() {
   const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
@@ -73,11 +66,12 @@ function view() {
     draw();
   }
   function write() {
-    const val = parseInt(ref.current.value);
+    const val = parseInt(ref.current.value); //is this ref avoidable? (e.target.value)
     if (val === undefined || isNaN(val)) return;
     model.count = parseInt(val);
     draw();
   };
+  const lspan = Math.log(20000) / Math.log(440) - 1;
   return (
     ['span',
       ['div', 
@@ -90,9 +84,37 @@ function view() {
           `l${'o'.repeat(100)}ng text`
         ],
       ],
-      ['div', {style: 'display: flex; padding: 5px'},
-        viewKnob(model.knob1),
-        viewKnob(model.knob2),
+      ['div', {style: 'display: flex; padding: 5px; gap: 1em'},
+        viewKnob({
+          title: 'pokrętność',
+          param: model.pk,
+          r2p: angle => angle,
+          p2r: pk => pk,
+          show: pk => `${pk}°`,
+        }),
+        viewKnob({
+          title: 'gain',
+          param: model.gain,
+          r2p: angle => angle/130*30,
+          p2r: gain => gain/30*130,
+          show: gain => `${Math.floor(gain)} dB`,
+        }),
+        viewKnob({
+          title: 'cutoff',
+          param: model.freq,
+          ...(model.logfreq ? {
+            r2p: angle => 440**(1 + angle/130*lspan), //TODO implement log freq
+            p2r: freq => (Math.log(freq) / Math.log(440) - 1)/lspan*130,
+          } : {
+            r2p: angle => (angle + 130)/(2*130)*20000,
+            p2r: freq => freq/20000*(2*130)-130,
+          }),
+          show: freq => `${Math.floor(freq)} Hz`,
+        }),
+      ],
+      ['div',
+        'log freq?',
+        ['input', {type: 'checkbox', onchange: e => {model.logfreq = e.target.checked; draw()}}],
       ],
       (model.count % 2) ? 'odd' : ['b', 'even'],
       ['table',
