@@ -139,6 +139,56 @@ handling fragments within fragments
 ==================================================
 ;UNCATEGORIZED
 
+
+lazy tree diffing
+  component nodes get expanded during diffing
+does it have to mutate the tree?
+  yeah, the results have to be diffed too
+  but the combinatorial explosion doesn't happen, because the components are expanded first
+    'diff' is called recursively until the node is a non-component
+
+solution to the shifty knob problem using memoization
+
+what are components anyway
+
+['mem', (list of values to check), expression]
+  but this would eval
+['mem', (list of values to check), function]
+
+mem as a prop
+  simpler to implement
+mem as a tag
+  much nicer
+
+mem expr gets parsed differently
+  
+
+the deal with components
+  storing stuff in the vdom tree
+
+generalizing the vdom?
+  stuff that does stuff when props change
+
+separate component nodes?
+
+components don't have to have children
+
+memoization by default
+  [fun, ...args]
+  very lisp-like
+
+doesn't adding components add like 5 more transitions?
+  no, the component evaluation returns a vnode, you could just eval it
+  where is the memo data stored? in the returned vnode?
+    yeah:
+      diff args
+      if changed, eval
+      write into the returned node props
+
+
+
+adding bounds to a knob
+
 isn't that ridiculous how much computation is spent (or wasted) on rendering a simple knob turn?
 
 normalizing the reading?
@@ -147,6 +197,8 @@ knob.display(param)
 knob.display
 
 interface for pushing and pulling from arbitrary widgets to params?
+  param as an object
+  param as a value in a model
 
 just write a class?
 

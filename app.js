@@ -37,7 +37,6 @@ function viewKnob(knob) {
   }
   const events = {onmousedown: lock, onmouseup: unlock, onmousemove: turn};
   return (
-    ['div',
       ['div', {className: 'knob'},
         ['span', {style: 'margin-bottom: 0.1em'}, knob.title],
         ['svg', {style: 'width: 40px; height: 40px;'},
@@ -48,11 +47,13 @@ function viewKnob(knob) {
         ],
         knob.show(param.val),
       ]
-    ]
   );
 }
 
 //function siPrefix()
+
+function viewFreqKnob() {
+}
 
 function view() {
   const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
