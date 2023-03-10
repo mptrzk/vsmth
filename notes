@@ -140,16 +140,50 @@ handling fragments within fragments
 ;UNCATEGORIZED
 
 
+
+factor out dom changes?
+
+empty component result?
+  not possible here
+
+maybe components follow as a nice memoization abstraction
+  why would I call functions when I can call components which diff stuff and are faster?
+  but why then would preact evaluate each component?
+    shallow predicates?
+      read the source
+
+components as decorated functions?
+  props without redundant naming
+
+implicit memoization
+  diffing all args
+    but lists are different each time
+
+maybe explicit memoization is better than implicit
+because I have to know what I'm diffing
+
+more vnode aware?
+
+stuff like "effect" hooks?
+
+can refs in my temperature converter be replaced with e.target?
+
+keyed ast
+
+"keylist" abstract nodes
+  in current impl a concrete element must be bound
+
+keys and stuff
+  moving a tree
+
 lazy tree diffing
   component nodes get expanded during diffing
 does it have to mutate the tree?
   yeah, the results have to be diffed too
   but the combinatorial explosion doesn't happen, because the components are expanded first
     'diff' is called recursively until the node is a non-component
+^^splitting expansion and diffing?
 
-solution to the shifty knob problem using memoization
-
-what are components anyway
 
 ['mem', (list of values to check), expression]
   but this would eval
@@ -159,6 +193,11 @@ mem as a prop
   simpler to implement
 mem as a tag
   much nicer
+  generalizes to other abstract vnodes
+  can be named like '!tag' or something
+mem as "component"
+  less verbose
+  doesn't generalize as well
 
 mem expr gets parsed differently
   
@@ -185,6 +224,9 @@ doesn't adding components add like 5 more transitions?
       if changed, eval
       write into the returned node props
 
+solution to the shifty knob problem using memoization
+
+what are components anyway
 
 
 adding bounds to a knob

@@ -42,8 +42,18 @@ function makeDom(vnode) { //TODO split to make-tag and make-text?
 function diff(vnew, vold, root, idx) {
   let el = root.childNodes?.[idx];
   if (typeof(vnew) === 'object') {
+    if (vnew.type === '!mem') {
+      //TODO diff vars
+      if (!(vold?.vars) || !propsEqual(vnew.vars, vold.vars)) {
+        vnew.children = [Vnode(vnew.fn())]; //is that really needed?
+        diff(vnew.children[0], vold?.children?.[0], root, idx);
+      } else {
+        vnew.children = vold.children;
+      }
+      return;
+    }
     if (el === undefined) {
-      /**none with text**/
+      /**none with tag**/
       el = makeDom(vnew);
       root.appendChild(el); 
     } else {
@@ -81,6 +91,14 @@ function diff(vnew, vold, root, idx) {
 function Vnode(x, isInSVG=false) {
   if (Array.isArray(x)) {
     const isSVG = isInSVG || x[0] === 'svg';
+    if (x[0] === '!mem') {
+      return {
+        type: x[0],
+        vars: x[1],
+        fn: x[2],
+        isSvg: isSVG,
+      };
+    }
     if (x?.[1]?.constructor?.name === 'Object') {
       return {
         type: x[0],
@@ -90,7 +108,12 @@ function Vnode(x, isInSVG=false) {
         isSVG: isSVG,
       };
     }
-    return {type: x[0], props: {}, children: x.slice(1).map(x => Vnode(x, isSVG)), isSVG: isSVG};
+    return {
+      type: x[0],
+      props: {},
+      children: x.slice(1).map(x => Vnode(x, isSVG)),
+      isSVG: isSVG
+    };
   }
   return x;
 }

@@ -127,7 +127,12 @@ function view() {
       ],
       ['br'],
       ['div', ...Array(Math.abs(model.count)).fill(['i', `${model.count < 0 ? 'anti-' : ''}bottle `])],
-      ['div', ...Array(5000).fill(['span', 'unchanging text '])],
+      ['!mem', [], () => {
+          console.log('rendering unchanging text');
+          return ['!mem', [], () => ['div', ...Array(5000).fill(['span', 'unchanging text '])]];
+        }
+      ],
+      //['div', ...Array(5000).fill(['span', 'unchanging text '])],
     ]
   );
 }
