@@ -141,6 +141,8 @@ handling fragments within fragments
 
 multi-root version?
 
+test memoization properly
+
 factor out dom changes?
 
 empty component result?

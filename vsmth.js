@@ -10,7 +10,6 @@ function propsEqual(a, b) {
   return true;
 }
 
-
 function propsAssign(el, vnode) { //just pass vnode
   const props = vnode.props;
   if (vnode.isSVG) {
@@ -118,25 +117,19 @@ function Vnode(x, isInSVG=false) {
   return x;
 }
 
-let vdom_g;
-function render(expr, root) {
+function render(expr, vold, root) {
   const vnew = Vnode(expr);
-  diff(vnew, vdom_g, root, 0);
-  vdom_g = vnew;
-}
-
-let view_g;
-let root_g;
-
-function draw() {
-  render(view_g(), root_g);
+  diff(vnew, vold, root, 0);
+  return vnew;
 }
 
 function init(view, root) {
-  view_g = view;
-  root_g = root;
-  render(view_g(), root_g);
+  let vdom;
+  function draw() {
+    vdom = render(view(draw), vdom, root);
+  }
+  draw();
 }
 
-export {init, draw};
+export {init};
 

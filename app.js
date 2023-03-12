@@ -1,5 +1,4 @@
-import {init, draw} from './vsmth.js'
-//import {model, bind, draw} from './vsmth.js'
+import {init} from './vsmth.js'
 
 
 const model = {
@@ -14,7 +13,7 @@ const model = {
 //one global vs many
 //^^model.stuff is nicer to read
 
-function viewKnob(knob) {
+function viewKnob(draw, knob) {
   const knobRef = {};
   const param = knob.param;
   const angle = knob.p2r(param.val);
@@ -55,7 +54,7 @@ function viewKnob(knob) {
 function viewFreqKnob() {
 }
 
-function view() {
+function view(draw) {
   const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
   const ref = {};
   function inc() {
@@ -86,21 +85,21 @@ function view() {
         ],
       ],
       ['div', {style: 'display: flex; padding: 5px; gap: 1em'},
-        viewKnob({
+        viewKnob(draw, {
           title: 'pokrętność',
           param: model.pk,
           r2p: angle => angle,
           p2r: pk => pk,
           show: pk => `${pk}°`,
         }),
-        viewKnob({
+        viewKnob(draw, {
           title: 'gain',
           param: model.gain,
           r2p: angle => angle/130*30,
           p2r: gain => gain/30*130,
           show: gain => `${Math.floor(gain)} dB`,
         }),
-        viewKnob({
+        viewKnob(draw, {
           title: 'cutoff',
           param: model.freq,
           ...(model.logfreq ? {
