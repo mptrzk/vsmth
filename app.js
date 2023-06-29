@@ -1,4 +1,4 @@
-import {init} from './vsmth.js'
+import * as Vsmth from './vsmth.js'
 
 
 const model = {
@@ -51,8 +51,6 @@ function viewKnob(draw, knob) {
 
 //function siPrefix()
 
-function viewFreqKnob() {
-}
 
 function view(draw) {
   const foo = Array(20).fill().map((x, i) => Array(20).fill().map((x, j) => i+j+model.count));
@@ -136,5 +134,5 @@ function view(draw) {
   );
 }
 
-init(view, document.body);
+Vsmth.init(view, document.body);
 
