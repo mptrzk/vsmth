@@ -75,7 +75,7 @@ function view(draw) {
       ['div', 
         ['div',
           ['input', {type: 'button', value: '-', onclick: dec}],
-          ['input', {value: model.count, ref: ref, oninput: write}],
+          ['input', {effect: el => el.focus(), value: model.count, ref: ref, oninput: write}],
           ['input', {type: 'button', value: '+', onclick: inc}],
         ],
         ['div', {style:'overflow-x: scroll; white-space: nowrap; width: 200px'},

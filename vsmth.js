@@ -22,7 +22,7 @@ function propsAssign(el, vnode) { //just pass vnode
   }
 }
 
-function makeDom(vnode) { //TODO split to make-tag and make-text?
+function makeDom(vnode, cb) { //TODO split to make-tag and make-text?
   if (typeof(vnode) === 'object') { //TODO redundant condition?
     let el;
     if (vnode.isSVG) {
@@ -31,6 +31,7 @@ function makeDom(vnode) { //TODO split to make-tag and make-text?
       el = document.createElement(vnode.type);
     }
     propsAssign(el, vnode);
+    if (vnode.props.effect) cb.push(() => vnode.props.effect(el));
     return el;
   } else {
     return document.createTextNode(vnode);
@@ -38,14 +39,14 @@ function makeDom(vnode) { //TODO split to make-tag and make-text?
 }
 
 //TODO ponder keys, changing append to insert n' stuff
-function diff(vnew, vold, root, idx) {
+function diff(vnew, vold, root, idx, cb) {
   let el = root.childNodes?.[idx];
   if (typeof(vnew) === 'object') {
     if (vnew.type === '!mem') {
       //TODO diff vars
       if (!(vold?.vars) || !propsEqual(vnew.vars, vold.vars)) {
         vnew.children = [Vnode(vnew.fn())]; //is that really needed?
-        diff(vnew.children[0], vold?.children?.[0], root, idx);
+        diff(vnew.children[0], vold?.children?.[0], root, idx, cb);
       } else {
         vnew.children = vold.children;
       }
@@ -53,32 +54,32 @@ function diff(vnew, vold, root, idx) {
     }
     if (el === undefined) {
       /**none with tag**/
-      el = makeDom(vnew);
+      el = makeDom(vnew, cb);
       root.appendChild(el); 
     } else {
       if (typeof(vold) === 'object') {
         /**tag with tag**/
-        if (vnew.type !== vold.type) el.replaceWith(makeDom(vnew));
+        if (vnew.type !== vold.type) el.replaceWith(makeDom(vnew, cb));
         else if (!propsEqual(vnew.props, vold.props)) propsAssign(el, vnew); //replace above with makeTag, replace 'else if' with 'if'
       } else {
         /**text with tag**/
-        el.replaceWith(makeDom(vnew));
+        el.replaceWith(makeDom(vnew, cb));
         el = root.childNodes[idx];
       }
     }
-    vnew.children.map((c, i) => diff(c, vold?.children?.[i], el, i));
+    vnew.children.map((c, i) => diff(c, vold?.children?.[i], el, i, cb));
     if (vnew.ref) vnew.ref.current = el;
     const lenOld = vold?.children ? vold.children.length : 0;
     for (let i=lenOld-1; i>=vnew.children.length; i--) el.childNodes[i].remove();
   } else {
     if (el === undefined) {
       /**none with text**/
-      el = makeDom(vnew);
+      el = makeDom(vnew, cb);
       root.appendChild(el);
     } else {
       if (typeof(vold) === 'object') {
         /**tag with text**/
-        el.replaceWith(makeDom(vnew));
+        el.replaceWith(makeDom(vnew, cb));
       } else {
         /**text with text**/
         if (vnew !== vold) el.data = vnew;
@@ -119,7 +120,9 @@ function Vnode(x, isInSVG=false) {
 
 function render(expr, vold, root) {
   const vnew = Vnode(expr);
-  diff(vnew, vold, root, 0);
+  const cb = []
+  diff(vnew, vold, root, 0, cb);
+  cb.forEach(f => f())
   return vnew;
 }
 
